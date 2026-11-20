@@ -9,7 +9,12 @@ import {
 import { prestamoDe, preverReserva, type PrevisionReserva } from '@/lib/consultas';
 import { calcularVencimiento } from '@/lib/fechas';
 import { buscarLibroPorIsbn } from '@/lib/isbn';
-import { cancelarRecordatorio, programarRecordatorio } from '@/lib/notificaciones';
+import {
+  cancelarRecordatorio,
+  notificacionesPermitidas,
+  notificarDisponible,
+  programarRecordatorio,
+} from '@/lib/notificaciones';
 import type { Libro } from '@/types';
 
 type ValorBiblioteca = {
@@ -19,7 +24,8 @@ type ValorBiblioteca = {
   devolver: (isbn: string) => Promise<void>;
   activarRecordatorio: (isbn: string) => Promise<void>;
   desactivarRecordatorio: (isbn: string) => Promise<void>;
-  entregarAlSiguiente: (isbn: string) => string | undefined;
+  /** Devuelve a quién se le entregó el libro, o undefined si no había nadie esperando. */
+  entregarAlSiguiente: (isbn: string) => Promise<string | undefined>;
   iniciarSesion: (usuario: string, clave: string) => boolean;
   cerrarSesion: () => void;
   agregarAviso: (mensaje: string) => void;
@@ -95,10 +101,27 @@ export function BibliotecaProvider({ children }: { children: ReactNode }) {
   );
 
   const entregarAlSiguiente = useCallback(
-    (isbn: string): string | undefined => {
+    async (isbn: string): Promise<string | undefined> => {
       const persona = estado.esperas[isbn]?.frente();
-      if (persona !== undefined) {
-        despachar({ tipo: 'ENTREGAR_SIGUIENTE', isbn, vence: calcularVencimiento() });
+      const libro = buscarLibroPorIsbn(isbn);
+      if (persona === undefined || libro === undefined) {
+        return undefined;
+      }
+      despachar({ tipo: 'ENTREGAR_SIGUIENTE', isbn, vence: calcularVencimiento() });
+
+      if (persona === USUARIO_ACTUAL) {
+        // Se consulta el permiso ahora: pudo cambiar en Ajustes desde la última vez.
+        if (await notificacionesPermitidas()) {
+          await notificarDisponible(libro);
+        } else {
+          despachar({
+            tipo: 'AGREGAR_AVISO',
+            aviso: {
+              id: crearIdAviso(),
+              mensaje: `¡«${libro.titulo}» ya está disponible para vos! Pasá a retirarlo por la biblioteca.`,
+            },
+          });
+        }
       }
       return persona;
     },
