@@ -303,8 +303,9 @@ notificarDisponible(libro): Promise<void>      // → scheduleNotificationAsync(
     "android": {
       "blockedPermissions": [
         "android.permission.RECORD_AUDIO",
-        "android.permission.ACCESS_FINE_LOCATION",
-        "android.permission.ACCESS_COARSE_LOCATION"
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
       ]
     }
   }
@@ -316,10 +317,12 @@ Confirmado en la documentación del SDK 58:
   habilitado (`barcodeScannerEnabled: true` por defecto).
 - `android.blockedPermissions` usa el nombre completo del permiso y lo quita del `AndroidManifest.xml` final con
   `tools:node="remove"`. **No tiene efecto en Expo Go**: solo se nota en un build (pregunta D3c).
-- La documentación no dice qué permisos agregan las dependencias. Bloquear `RECORD_AUDIO` es la defensa por si una
-  dependencia lo agrega igual. Las entradas de ubicación son preventivas. La lista final se arma mirando el
-  manifiesto generado (`npx expo prebuild --platform android` en una rama aparte, sin commitear `android/`), y cada
-  entrada se justifica en el README.
+- Origen de la lista, revisado en `node_modules` del SDK 58:
+  - `@expo/config-plugins` (`withAndroidBaseMods.js`) agrega por defecto `SYSTEM_ALERT_WINDOW`,
+    `READ_EXTERNAL_STORAGE` y `WRITE_EXTERNAL_STORAGE`, marcados como opcionales. La app no los usa.
+  - `RECORD_AUDIO` ya no lo agrega `expo-camera` (`recordAudioAndroid: false`). Se bloquea por si otra dependencia lo agrega.
+  - Se mantienen `INTERNET` y `VIBRATE`, que no son peligrosos y los usa Expo/notificaciones; `CAMERA` (expo-camera);
+    `POST_NOTIFICATIONS` y `RECEIVE_BOOT_COMPLETED` (expo-notifications).
 
 ### Cámara (`/escanear`)
 ```tsx
