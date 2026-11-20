@@ -1,3 +1,5 @@
+import { Platform } from 'react-native';
+
 export const colores = {
   primario: '#1E3A8A',
   primarioSuave: '#DBEAFE',
@@ -41,4 +43,8 @@ export const radios = {
   sm: 6,
   md: 10,
   lg: 16,
+} as const;
+
+export const fuentes = {
+  mono: Platform.select({ ios: 'Menlo', default: 'monospace' }),
 } as const;

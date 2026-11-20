@@ -1,7 +1,7 @@
 import { Link, usePathname } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { colores, espacios, tamanios } from '@/constants/tema';
+import { colores, espacios, fuentes, tamanios } from '@/constants/tema';
 
 export default function PantallaNoEncontrada() {
   const ruta = usePathname();
@@ -35,7 +35,7 @@ const estilos = StyleSheet.create({
   },
   ruta: {
     color: colores.textoSecundario,
-    fontFamily: 'monospace',
+    fontFamily: fuentes.mono,
     fontSize: tamanios.texto,
   },
   enlace: {

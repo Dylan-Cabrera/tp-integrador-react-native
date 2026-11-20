@@ -1,4 +1,5 @@
-import { Stack } from 'expo-router';
+import { router, Stack } from 'expo-router';
+import { useEffect, useRef } from 'react';
 import { StatusBar } from 'expo-status-bar';
 
 import { colores } from '@/constants/tema';
@@ -6,6 +7,16 @@ import { useBiblioteca } from '@/context/BibliotecaContext';
 
 export function NavegacionRaiz() {
   const { estado } = useBiblioteca();
+  const habiaSesion = useRef(estado.sesion);
+
+  // Al iniciar sesión, el login desaparece (Stack.Protected) y se abre el mostrador.
+  // Se hace acá porque este componente sigue montado cuando el login ya no existe.
+  useEffect(() => {
+    if (estado.sesion && !habiaSesion.current) {
+      router.push('/mostrador');
+    }
+    habiaSesion.current = estado.sesion;
+  }, [estado.sesion]);
 
   return (
     <>
