@@ -6,15 +6,19 @@ import {
   crearEstadoInicial,
   type EstadoBiblioteca,
 } from '@/lib/bibliotecaReducer';
-import { preverReserva, type PrevisionReserva } from '@/lib/consultas';
+import { prestamoDe, preverReserva, type PrevisionReserva } from '@/lib/consultas';
 import { calcularVencimiento } from '@/lib/fechas';
+import { buscarLibroPorIsbn } from '@/lib/isbn';
+import { cancelarRecordatorio, programarRecordatorio } from '@/lib/notificaciones';
 import type { Libro } from '@/types';
 
 type ValorBiblioteca = {
   estado: EstadoBiblioteca;
   verLibro: (isbn: string) => void;
   reservar: (libro: Libro) => PrevisionReserva;
-  devolver: (isbn: string) => void;
+  devolver: (isbn: string) => Promise<void>;
+  activarRecordatorio: (isbn: string) => Promise<void>;
+  desactivarRecordatorio: (isbn: string) => Promise<void>;
   entregarAlSiguiente: (isbn: string) => string | undefined;
   iniciarSesion: (usuario: string, clave: string) => boolean;
   cerrarSesion: () => void;
@@ -53,9 +57,42 @@ export function BibliotecaProvider({ children }: { children: ReactNode }) {
     [estado],
   );
 
-  const devolver = useCallback((isbn: string) => {
-    despachar({ tipo: 'DEVOLVER', isbn, persona: USUARIO_ACTUAL });
-  }, []);
+  const devolver = useCallback(
+    async (isbn: string) => {
+      const id = prestamoDe(estado, isbn, USUARIO_ACTUAL)?.idNotificacion ?? null;
+      despachar({ tipo: 'DEVOLVER', isbn, persona: USUARIO_ACTUAL });
+      // Si no se cancela, el recordatorio llegaría aunque el libro ya esté devuelto.
+      if (id !== null) {
+        await cancelarRecordatorio(id);
+      }
+    },
+    [estado],
+  );
+
+  /** Programa el recordatorio. Quien la llama ya verificó que el permiso esté concedido. */
+  const activarRecordatorio = useCallback(
+    async (isbn: string) => {
+      const prestamo = prestamoDe(estado, isbn, USUARIO_ACTUAL);
+      const libro = buscarLibroPorIsbn(isbn);
+      if (prestamo === undefined || libro === undefined || prestamo.idNotificacion !== null) {
+        return;
+      }
+      const id = await programarRecordatorio(libro, prestamo);
+      despachar({ tipo: 'GUARDAR_ID_NOTIFICACION', isbn, persona: USUARIO_ACTUAL, id });
+    },
+    [estado],
+  );
+
+  const desactivarRecordatorio = useCallback(
+    async (isbn: string) => {
+      const id = prestamoDe(estado, isbn, USUARIO_ACTUAL)?.idNotificacion ?? null;
+      despachar({ tipo: 'GUARDAR_ID_NOTIFICACION', isbn, persona: USUARIO_ACTUAL, id: null });
+      if (id !== null) {
+        await cancelarRecordatorio(id);
+      }
+    },
+    [estado],
+  );
 
   const entregarAlSiguiente = useCallback(
     (isbn: string): string | undefined => {
@@ -94,6 +131,8 @@ export function BibliotecaProvider({ children }: { children: ReactNode }) {
       verLibro,
       reservar,
       devolver,
+      activarRecordatorio,
+      desactivarRecordatorio,
       entregarAlSiguiente,
       iniciarSesion,
       cerrarSesion,
@@ -105,6 +144,8 @@ export function BibliotecaProvider({ children }: { children: ReactNode }) {
       verLibro,
       reservar,
       devolver,
+      activarRecordatorio,
+      desactivarRecordatorio,
       entregarAlSiguiente,
       iniciarSesion,
       cerrarSesion,

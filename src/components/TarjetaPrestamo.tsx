@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Switch, Text, View } from 'react-native';
 
 import { Boton } from '@/components/Boton';
 import { colores, espacios, radios, tamanios } from '@/constants/tema';
@@ -9,13 +9,23 @@ type Props = {
   libro: Libro;
   prestamo: Prestamo;
   onDevolver: () => void;
+  onCambiarRecordatorio: (activar: boolean) => void;
 };
 
-export function TarjetaPrestamo({ libro, prestamo, onDevolver }: Props) {
+export function TarjetaPrestamo({ libro, prestamo, onDevolver, onCambiarRecordatorio }: Props) {
   return (
     <View style={estilos.tarjeta}>
       <Text style={estilos.titulo}>{libro.titulo}</Text>
       <Text style={estilos.texto}>Devolución: {formatearFecha(prestamo.vence)}</Text>
+      <View style={estilos.recordatorio}>
+        <Text style={estilos.texto}>Recordarme</Text>
+        <Switch
+          accessibilityLabel={`Recordarme la devolución de ${libro.titulo}`}
+          value={prestamo.idNotificacion !== null}
+          onValueChange={onCambiarRecordatorio}
+          trackColor={{ true: colores.primario, false: colores.borde }}
+        />
+      </View>
       <Boton
         titulo="Devolver"
         variante="secundario"
@@ -45,5 +55,11 @@ const estilos = StyleSheet.create({
   texto: {
     color: colores.textoSecundario,
     fontSize: tamanios.texto,
+  },
+  recordatorio: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    minHeight: tamanios.areaTactil,
   },
 });

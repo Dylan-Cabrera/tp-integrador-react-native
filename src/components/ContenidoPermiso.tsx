@@ -2,21 +2,24 @@ import { EstadoCargando } from '@/components/EstadoCargando';
 import { PanelPermiso } from '@/components/PanelPermiso';
 import { TEXTOS_PERMISO } from '@/constants/permisos';
 import { usePermiso } from '@/hooks/usePermiso';
-import type { RecursoPermiso } from '@/types';
+import type { EstadoPermiso, RecursoPermiso } from '@/types';
 
 type Props = {
   recurso: RecursoPermiso;
   onCerrar: () => void;
+  /** Se llama con el resultado del diálogo del sistema, antes de cerrar. */
+  onResultado?: (estado: EstadoPermiso) => Promise<void>;
 };
 
 /** Pantalla previa al diálogo del sistema: un beneficio en una frase y una única acción. */
-export function ContenidoPermiso({ recurso, onCerrar }: Props) {
+export function ContenidoPermiso({ recurso, onCerrar, onResultado }: Props) {
   const { estado, pedir, abrirAjustes } = usePermiso(recurso);
   const textos = TEXTOS_PERMISO[recurso];
   const icono = recurso === 'camara' ? 'camera-outline' : 'notifications-outline';
 
   async function continuar() {
-    await pedir();
+    const resultado = await pedir();
+    await onResultado?.(resultado);
     onCerrar();
   }
 

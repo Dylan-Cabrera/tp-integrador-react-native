@@ -1,5 +1,8 @@
 import { NavegacionRaiz } from '@/components/NavegacionRaiz';
 import { BibliotecaProvider } from '@/context/BibliotecaContext';
+import { configurarNotificaciones } from '@/lib/notificaciones';
+
+configurarNotificaciones();
 
 // Un deep link a una ruta del Stack raíz (por ejemplo /buscar) deja las pestañas debajo.
 export const unstable_settings = {

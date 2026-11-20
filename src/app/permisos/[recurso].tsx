@@ -4,7 +4,8 @@ import { StyleSheet, View } from 'react-native';
 import { ContenidoPermiso } from '@/components/ContenidoPermiso';
 import { EstadoError } from '@/components/EstadoError';
 import { colores } from '@/constants/tema';
-import type { RecursoPermiso } from '@/types';
+import { useBiblioteca } from '@/context/BibliotecaContext';
+import type { EstadoPermiso, RecursoPermiso } from '@/types';
 
 function esRecurso(valor: string): valor is RecursoPermiso {
   return valor === 'camara' || valor === 'notificaciones';
@@ -19,7 +20,22 @@ function cerrar() {
 }
 
 export default function PantallaPermiso() {
-  const { recurso } = useLocalSearchParams<'/permisos/[recurso]'>();
+  // `isbn` llega cuando se viene del interruptor "Recordarme" de un préstamo.
+  const { recurso, isbn } = useLocalSearchParams<{ recurso: string; isbn?: string }>();
+  const { activarRecordatorio, agregarAviso } = useBiblioteca();
+
+  async function alResolver(resultado: EstadoPermiso) {
+    if (isbn === undefined) {
+      return;
+    }
+    if (resultado === 'concedido') {
+      await activarRecordatorio(isbn);
+    } else {
+      agregarAviso(
+        'Sin permiso de notificaciones no podemos recordarte la devolución. Revisá la fecha en esta pantalla.',
+      );
+    }
+  }
 
   if (!esRecurso(recurso)) {
     return (
@@ -35,7 +51,7 @@ export default function PantallaPermiso() {
 
   return (
     <View style={estilos.contenedor}>
-      <ContenidoPermiso recurso={recurso} onCerrar={cerrar} />
+      <ContenidoPermiso recurso={recurso} onCerrar={cerrar} onResultado={alResolver} />
     </View>
   );
 }
