@@ -24,11 +24,14 @@ export function ListaRecientes({ libros }: Props) {
               asChild>
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel={`Abrir ${libro.titulo}`}
-                style={({ pressed }) => [estilos.chip, pressed && estilos.chipPresionado]}>
-                <Text style={estilos.textoChip} numberOfLines={1}>
-                  {libro.titulo}
-                </Text>
+                accessibilityLabel={`Abrir ${libro.titulo}`}>
+                {({ pressed }) => (
+                  <View style={[estilos.chip, pressed && estilos.chipPresionado]}>
+                    <Text style={estilos.textoChip} numberOfLines={1}>
+                      {libro.titulo}
+                    </Text>
+                  </View>
+                )}
               </Pressable>
             </Link>
           ))}

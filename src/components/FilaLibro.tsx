@@ -28,16 +28,20 @@ export function FilaLibro({ libro, disponibles, enEspera }: Props) {
     <Link href={{ pathname: '/libro/[isbn]', params: { isbn: libro.isbn } }} asChild>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`${libro.titulo}, de ${libro.autor}. ${disponibilidad}`}
-        style={({ pressed }) => [estilos.fila, pressed && estilos.presionada]}>
-        <View style={estilos.textos}>
-          <Text style={estilos.titulo}>{libro.titulo}</Text>
-          <Text style={estilos.autor}>{libro.autor}</Text>
-          <Text style={disponibles > 0 ? estilos.disponible : estilos.agotado}>
-            {disponibilidad}
-          </Text>
-        </View>
-        <Ionicons name="chevron-forward" size={tamanios.icono} color={colores.textoSecundario} />
+        accessibilityLabel={`${libro.titulo}, de ${libro.autor}. ${disponibilidad}`}>
+        {/* El estilo va en un View interno: con Link asChild, en web se pierde el style en forma de función. */}
+        {({ pressed }) => (
+          <View style={[estilos.fila, pressed && estilos.presionada]}>
+            <View style={estilos.textos}>
+              <Text style={estilos.titulo}>{libro.titulo}</Text>
+              <Text style={estilos.autor}>{libro.autor}</Text>
+              <Text style={disponibles > 0 ? estilos.disponible : estilos.agotado}>
+                {disponibilidad}
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={tamanios.icono} color={colores.textoSecundario} />
+          </View>
+        )}
       </Pressable>
     </Link>
   );

@@ -159,6 +159,35 @@ npx uri-scheme open "exp://192.168.0.10:8081/--/buscar?q=borges" --android
   Los tres primeros tienen lista de espera inicial ([`src/data/esperasIniciales.ts`](src/data/esperasIniciales.ts)).
 - El recordatorio de devolución llega a los **15 segundos** (modo demostración).
 
+## Capturas
+
+Tomadas en la versión web (`npx expo start --web`) con un viewport de celular (393 × 852). Lo que solo existe en el
+teléfono (diálogo del sistema, cámara bloqueada y notificación recibida) está marcado como pendiente.
+
+| Pantalla | Captura |
+|---|---|
+| Catálogo cargando | [01](capturas/01-catalogo-cargando.png) |
+| Catálogo con error | [02](capturas/02-catalogo-error.png) |
+| Catálogo con datos y vistos recientemente | [03](capturas/03-catalogo-con-datos.png) |
+| Buscador (`/buscar?q=borges`) | [04](capturas/04-buscador.png) |
+| Detalle | [05](capturas/05-detalle.png) |
+| Detalle inexistente (`/libro/123`) | [06](capturas/06-detalle-inexistente.png) |
+| Reserva con ejemplares | [07](capturas/07-reserva-con-ejemplares.png) |
+| Reserva sin ejemplares (lista de espera) | [08](capturas/08-reserva-sin-ejemplares.png) |
+| Mis reservas | [09](capturas/09-mis-reservas.png) |
+| Escáner: cargando | [10](capturas/10-escaner-cargando.png) |
+| Escáner: preguntable (pantalla previa) | [11](capturas/11-escaner-preguntable.png) |
+| Escáner: denegado, con ISBN a mano | [12](capturas/12-escaner-denegado-web.png) |
+| Escáner: concedido (cámara de prueba del navegador) | [13](capturas/13-escaner-concedido.png) |
+| Escáner: ISBN que no está en el catálogo | [14](capturas/14-escaner-isbn-inexistente.png) |
+| Login con clave incorrecta | [15](capturas/15-login-clave-incorrecta.png) |
+| Mostrador antes de "Entregar al siguiente" | [16](capturas/16-mostrador-antes.png) |
+| Mostrador después de "Entregar al siguiente" | [17](capturas/17-mostrador-despues.png) |
+| Aviso dentro de la app (sin permiso de notificaciones) | [18](capturas/18-aviso-libro-disponible.png) |
+| Pantalla 404 | [19](capturas/19-pantalla-404.png) |
+| Escáner: bloqueado ("Abrir Ajustes") | _pendiente: tomar en el teléfono_ |
+| Notificación recibida | _pendiente: tomar en el teléfono_ |
+
 ## Calidad
 
 ```
